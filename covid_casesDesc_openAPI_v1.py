@@ -1,15 +1,14 @@
 import requests
 import pandas as pd
-from googlemaps import Client as GoogleMaps
 import pandas as pd 
-#import json
-gmaps = GoogleMaps('AIzaSyCYA0c5qppFhpcGeWK-e1QIT6EBS3LoMx4')  # my account API, replace with yours
+import json
+
 
 response = requests.get("https://covid19.th-stat.com/api/open/cases")
 
-#print(response.status_code)
+print(response.status_code)
 
-#print(response.json())
+print(response.json())
 result=response.json()
 
 #print(result,' == ',type(result))
@@ -30,23 +29,22 @@ for n in range(len(result['Data'])):
     newrow={'ConfirmDate':result['Data'][n][header1[0]], 'No':result['Data'][n][header1[1]], 'Age':result['Data'][n][header1[2]], 
     'Gender':result['Data'][n][header1[3]], 'GenderEn':result['Data'][n][header1[4]], 'Nation':result['Data'][n][header1[5]],
      'NationEn':result['Data'][n][header1[6]], 'Province':result['Data'][n][header1[7]], 'ProvinceId':result['Data'][n][header1[8]],
-      'ProvinceEn':result['Data'][n][header1[9]]}
+      'ProvinceEn':result['Data'][n][header1[10]]}
     dfData=dfData.append(newrow, ignore_index=True)
 
 #print(dfData)
 
 
-dfData['lat'] = ""
-dfData['long'] = ""
+# Create Dict of Province List to use in Location search in map api
+provincethList=list(set(dfData['Province'].values.tolist()))
+provinceEnList=[]
+for n in provincethList:
+    provinceEnList.append(list(set(list(dfData[dfData['Province']==n]['ProvinceEn'])))[0])
+
+prvDict=zip(provinceEnList, provinceEnList)
 
 
-for x in range(len(dfData)):
-    geocode_result = gmaps.geocode(dfData['ProvinceEn'][x])
-    dfData['lat'][x] = geocode_result[0]['geometry']['location'] ['lat']
-    dfData['long'][x] = geocode_result[0]['geometry']['location']['lng']
+    
 
-#latList=dfIn['lat'].values.tolist()
-#longList=dfIn['long'].values.tolist()
-#pairList=list(zip(latList,longList))
 
-print(dfData)
+
